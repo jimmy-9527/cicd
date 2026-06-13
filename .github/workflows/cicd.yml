@@ -32,3 +32,8 @@ jobs:
 
       - name: Push Docker image
         run: docker push seventygreene/ai-model:latest
+
+      - name: Deploy to Kubernetes
+        run: |
+          kubectl set image deployment/ai-app \
+            ai-app=seventygreene/ai-model:latest
