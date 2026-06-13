@@ -1,0 +1,51 @@
+import torch
+import torchvision
+import torchvision.transforms as transforms
+import torch.nn as nn
+import torch.optim as optim
+
+trainset = torchvision.datasets.MNIST(
+    "./data",
+    train=True,
+    download=True,
+    transform=transforms.ToTensor()
+)
+
+trainloader = torch.utils.data.DataLoader(
+    trainset,
+    batch_size=64,
+    shuffle=True
+)
+
+class Net(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.fc1 = nn.Linear(28*28,128)
+        self.fc2 = nn.Linear(128,64)
+        self.fc3 = nn.Linear(64,10)
+
+    def forward(self,x):
+        x = x.view(-1,28*28)
+        x = torch.relu(self.fc1(x))
+        x = torch.relu(self.fc2(x))
+        return self.fc3(x)
+
+model = Net()
+
+criterion = nn.CrossEntropyLoss()
+optimizer = optim.Adam(model.parameters(), lr=0.001)
+
+for epoch in range(1):
+    for images, labels in trainloader:
+        optimizer.zero_grad()
+
+        outputs = model(images)
+
+        loss = criterion(outputs, labels)
+
+        loss.backward()
+        optimizer.step()
+
+torch.save(model.state_dict(), "model.pth")
+
+print("✅ Model trained and saved")
